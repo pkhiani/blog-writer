@@ -7,13 +7,42 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { initializeOpenAI, generateBlogContent } from "@/utils/openai";
 
 export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: string) => void }) {
   const [topic, setTopic] = useState("");
   const [originalContent, setOriginalContent] = useState("");
   const [includeResearch, setIncludeResearch] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [isApiKeySet, setIsApiKeySet] = useState(false);
   const { toast } = useToast();
+
+  const handleApiKeySubmit = () => {
+    if (!apiKey.trim()) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your OpenAI API key.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      initializeOpenAI(apiKey);
+      setIsApiKeySet(true);
+      toast({
+        title: "API Key Set",
+        description: "Your OpenAI API key has been configured successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Invalid API Key",
+        description: "Please check your API key and try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const generateBlog = async () => {
     if (!topic.trim()) {
@@ -25,26 +54,18 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
       return;
     }
 
+    if (!isApiKeySet) {
+      toast({
+        title: "API Key Required",
+        description: "Please set your OpenAI API key first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     try {
-      // Simulate AI generation - Replace with actual AI integration
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      const generatedContent = `
-# ${topic}
-
-## Introduction
-${originalContent}
-
-## Key Points
-- Important insight about ${topic}
-- Research-backed information
-- Expert analysis
-
-## Conclusion
-This is a comprehensive look at ${topic}, providing valuable insights and actionable information.
-      `;
-      
+      const generatedContent = await generateBlogContent(topic, originalContent, includeResearch);
       onBlogGenerated(generatedContent);
       toast({
         title: "Blog Generated!",
@@ -64,6 +85,22 @@ This is a comprehensive look at ${topic}, providing valuable insights and action
   return (
     <Card className="p-6 w-full max-w-2xl mx-auto">
       <div className="space-y-6">
+        {!isApiKeySet && (
+          <div className="space-y-2">
+            <Label htmlFor="apiKey">OpenAI API Key</Label>
+            <Input
+              id="apiKey"
+              type="password"
+              placeholder="Enter your OpenAI API key..."
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+            />
+            <Button onClick={handleApiKeySubmit} className="w-full">
+              Set API Key
+            </Button>
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="topic">Blog Topic</Label>
           <Input
@@ -97,7 +134,7 @@ This is a comprehensive look at ${topic}, providing valuable insights and action
         <Button
           className="w-full"
           onClick={generateBlog}
-          disabled={isGenerating}
+          disabled={isGenerating || !isApiKeySet}
         >
           {isGenerating ? (
             <>
