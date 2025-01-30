@@ -3,18 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
-import { initializeOpenAI, generateBlogContent } from "@/utils/openai";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { generateBlogContent } from "@/utils/openai";
+import { ApiKeyInput } from "./blog/ApiKeyInput";
+import { BlogSettings } from "./blog/BlogSettings";
+import { BlogOptions } from "./blog/BlogOptions";
 
 export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: string) => void }) {
   const [topic, setTopic] = useState("");
@@ -27,32 +22,6 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
   const [wordCount, setWordCount] = useState("500");
   const [includeImages, setIncludeImages] = useState(false);
   const { toast } = useToast();
-
-  const handleApiKeySubmit = () => {
-    if (!apiKey.trim()) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your OpenAI API key.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      initializeOpenAI(apiKey);
-      setIsApiKeySet(true);
-      toast({
-        title: "API Key Set",
-        description: "Your OpenAI API key has been configured successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Invalid API Key",
-        description: "Please check your API key and try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const generateBlog = async () => {
     if (!topic.trim()) {
@@ -76,8 +45,8 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
     setIsGenerating(true);
     try {
       const generatedContent = await generateBlogContent(
-        topic, 
-        originalContent, 
+        topic,
+        originalContent,
         includeResearch,
         tone,
         parseInt(wordCount),
@@ -103,19 +72,11 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
     <Card className="p-6 w-full max-w-2xl mx-auto">
       <div className="space-y-6">
         {!isApiKeySet && (
-          <div className="space-y-2">
-            <Label htmlFor="apiKey">OpenAI API Key</Label>
-            <Input
-              id="apiKey"
-              type="password"
-              placeholder="Enter your OpenAI API key..."
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-            />
-            <Button onClick={handleApiKeySubmit} className="w-full">
-              Set API Key
-            </Button>
-          </div>
+          <ApiKeyInput
+            apiKey={apiKey}
+            setApiKey={setApiKey}
+            setIsApiKeySet={setIsApiKeySet}
+          />
         )}
 
         <div className="space-y-2">
@@ -139,57 +100,19 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
           />
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="tone">Writing Tone</Label>
-            <Select value={tone} onValueChange={setTone}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select tone" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="professional">Professional</SelectItem>
-                <SelectItem value="casual">Casual</SelectItem>
-                <SelectItem value="formal">Formal</SelectItem>
-                <SelectItem value="friendly">Friendly</SelectItem>
-                <SelectItem value="humorous">Humorous</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <BlogSettings
+          tone={tone}
+          setTone={setTone}
+          wordCount={wordCount}
+          setWordCount={setWordCount}
+        />
 
-          <div className="space-y-2">
-            <Label htmlFor="wordCount">Word Count</Label>
-            <Select value={wordCount} onValueChange={setWordCount}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select word count" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="300">300 words</SelectItem>
-                <SelectItem value="500">500 words</SelectItem>
-                <SelectItem value="750">750 words</SelectItem>
-                <SelectItem value="1000">1000 words</SelectItem>
-                <SelectItem value="1500">1500 words</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="research"
-            checked={includeResearch}
-            onCheckedChange={setIncludeResearch}
-          />
-          <Label htmlFor="research">Include AI Research</Label>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="images"
-            checked={includeImages}
-            onCheckedChange={setIncludeImages}
-          />
-          <Label htmlFor="images">Include AI Generated Images</Label>
-        </div>
+        <BlogOptions
+          includeResearch={includeResearch}
+          setIncludeResearch={setIncludeResearch}
+          includeImages={includeImages}
+          setIncludeImages={setIncludeImages}
+        />
 
         <Button
           className="w-full"
