@@ -1,12 +1,24 @@
 import OpenAI from 'openai';
+import { supabase } from "@/integrations/supabase/client";
 
 let openai: OpenAI | null = null;
 
-export const initializeOpenAI = (apiKey: string) => {
-  openai = new OpenAI({
-    apiKey,
-    dangerouslyAllowBrowser: true
-  });
+export const initializeOpenAI = async () => {
+  try {
+    const { data: { OPENAI_API_KEY }, error } = await supabase.functions.invoke('get-openai-key', {});
+    
+    if (error) throw error;
+    
+    openai = new OpenAI({
+      apiKey: OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error initializing OpenAI:', error);
+    return false;
+  }
 };
 
 export const generateBlogContent = async (
@@ -18,7 +30,10 @@ export const generateBlogContent = async (
   includeImages: boolean
 ) => {
   if (!openai) {
-    throw new Error('OpenAI client not initialized');
+    const success = await initializeOpenAI();
+    if (!success) {
+      throw new Error('Failed to initialize OpenAI client');
+    }
   }
 
   const prompt = `Write a ${wordCount}-word blog post about "${topic}" using these tones: ${tones}.

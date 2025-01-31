@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
-import { generateBlogContent } from "@/utils/openai";
-import { ApiKeyInput } from "./blog/ApiKeyInput";
+import { generateBlogContent, initializeOpenAI } from "@/utils/openai";
 import { BlogSettings } from "./blog/BlogSettings";
 import { BlogOptions } from "./blog/BlogOptions";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,12 +16,26 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
   const [originalContent, setOriginalContent] = useState("");
   const [includeResearch, setIncludeResearch] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [apiKey, setApiKey] = useState("");
-  const [isApiKeySet, setIsApiKeySet] = useState(false);
+  const [isOpenAIInitialized, setIsOpenAIInitialized] = useState(false);
   const [tones, setTones] = useState<string[]>(["professional"]);
   const [wordCount, setWordCount] = useState("500");
   const [includeImages, setIncludeImages] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const initOpenAI = async () => {
+      const success = await initializeOpenAI();
+      setIsOpenAIInitialized(success);
+      if (!success) {
+        toast({
+          title: "OpenAI Initialization Failed",
+          description: "There was an error initializing OpenAI. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    };
+    initOpenAI();
+  }, []);
 
   const isPremiumFeatureSelected = () => {
     return (
@@ -61,10 +74,10 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
       return;
     }
 
-    if (!isApiKeySet) {
+    if (!isOpenAIInitialized) {
       toast({
-        title: "API Key Required",
-        description: "Please set your OpenAI API key first.",
+        title: "OpenAI Not Initialized",
+        description: "Please wait for OpenAI to initialize and try again.",
         variant: "destructive",
       });
       return;
@@ -117,14 +130,6 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
   return (
     <Card className="p-6 w-full max-w-2xl mx-auto">
       <div className="space-y-6">
-        {!isApiKeySet && (
-          <ApiKeyInput
-            apiKey={apiKey}
-            setApiKey={setApiKey}
-            setIsApiKeySet={setIsApiKeySet}
-          />
-        )}
-
         <div className="space-y-2">
           <Label htmlFor="topic">Blog Topic</Label>
           <Input
@@ -178,7 +183,7 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
         <Button
           className="w-full"
           onClick={generateBlog}
-          disabled={isGenerating || !isApiKeySet}
+          disabled={isGenerating || !isOpenAIInitialized}
         >
           {isGenerating ? (
             <>
