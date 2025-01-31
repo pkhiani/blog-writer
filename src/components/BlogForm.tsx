@@ -10,6 +10,7 @@ import { generateBlogContent } from "@/utils/openai";
 import { ApiKeyInput } from "./blog/ApiKeyInput";
 import { BlogSettings } from "./blog/BlogSettings";
 import { BlogOptions } from "./blog/BlogOptions";
+import { supabase } from "@/integrations/supabase/client";
 
 export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: string) => void }) {
   const [topic, setTopic] = useState("");
@@ -22,6 +23,33 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
   const [wordCount, setWordCount] = useState("500");
   const [includeImages, setIncludeImages] = useState(false);
   const { toast } = useToast();
+
+  const isPremiumFeatureSelected = () => {
+    return (
+      tones.length > 1 ||
+      parseInt(wordCount) > 1000 ||
+      includeResearch ||
+      includeImages
+    );
+  };
+
+  const handleCheckout = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {});
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      toast({
+        title: "Checkout Error",
+        description: "There was an error initiating checkout. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const generateBlog = async () => {
     if (!topic.trim()) {
@@ -48,6 +76,15 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
         description: "Please select at least one writing tone.",
         variant: "destructive",
       });
+      return;
+    }
+
+    if (isPremiumFeatureSelected()) {
+      toast({
+        title: "Premium Feature",
+        description: "Please upgrade to access multiple tones, extended word count, research, and image features.",
+      });
+      handleCheckout();
       return;
     }
 
@@ -122,6 +159,21 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
           includeImages={includeImages}
           setIncludeImages={setIncludeImages}
         />
+
+        {isPremiumFeatureSelected() && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <p className="text-sm text-yellow-800">
+              Premium features selected (multiple tones, extended word count, research, or images).
+              Upgrade required to access these features.
+            </p>
+            <Button
+              onClick={handleCheckout}
+              className="mt-2 w-full bg-yellow-500 hover:bg-yellow-600"
+            >
+              Upgrade Now
+            </Button>
+          </div>
+        )}
 
         <Button
           className="w-full"
