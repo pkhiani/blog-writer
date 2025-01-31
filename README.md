@@ -1,5 +1,9 @@
 # AI SEO-Optimized Blog Writer
 
+<p align="center" width="100%">
+    <img width="33%" src="https://github.com/pkhiani/blog-writer/blob/main/icon.png?raw=true"> 
+</p>
+
 ## Overview
 Create high-quality, search-engine-optimized blog posts effortlessly. It leverages AI to conduct research, generate compelling content, and create relevant images, ensuring that blog posts are both informative and visually engaging. Users can customize their content by selecting a preferred writing tone and word count, making the tool adaptable to various content needs.
 
