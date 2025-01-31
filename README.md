@@ -1,7 +1,7 @@
 # AI SEO-Optimized Blog Writer
 
 <p align="center" width="100%">
-    <img width="33%" src="https://github.com/pkhiani/blog-writer/blob/main/icon.png?raw=true"> 
+    <img width="33%" src="https://github.com/pkhiani/blog-writer/blob/main/public/icon.png?raw=true">
 </p>
 
 ## Overview
@@ -14,7 +14,7 @@ Create high-quality, search-engine-optimized blog posts effortlessly. It leverag
 - **Customizable Writing Tone**: Choose from multiple tones, such as professional, casual, informative, persuasive, and more.
 - **Adjustable Word Count**: Set the desired length of the blog post, from short-form content to in-depth articles.
 
-## What technologies are used for this project?
+## Technologies Used
 
 This project is built with .
 
