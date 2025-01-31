@@ -16,8 +16,6 @@ Create high-quality, search-engine-optimized blog posts effortlessly. It leverag
 
 ## Technologies Used
 
-This project is built with .
-
 - OpenAI GPT-4 & DALL-E 3
 - React
 - Tailwind CSS
