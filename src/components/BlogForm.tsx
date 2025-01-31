@@ -18,7 +18,7 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
   const [isGenerating, setIsGenerating] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [isApiKeySet, setIsApiKeySet] = useState(false);
-  const [tone, setTone] = useState("professional");
+  const [tones, setTones] = useState<string[]>(["professional"]);
   const [wordCount, setWordCount] = useState("500");
   const [includeImages, setIncludeImages] = useState(false);
   const { toast } = useToast();
@@ -42,13 +42,22 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
       return;
     }
 
+    if (tones.length === 0) {
+      toast({
+        title: "Tone Required",
+        description: "Please select at least one writing tone.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     try {
       const generatedContent = await generateBlogContent(
         topic,
         originalContent,
         includeResearch,
-        tone,
+        tones.join(", "),
         parseInt(wordCount),
         includeImages
       );
@@ -101,8 +110,8 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
         </div>
 
         <BlogSettings
-          tone={tone}
-          setTone={setTone}
+          tones={tones}
+          setTones={setTones}
           wordCount={wordCount}
           setWordCount={setWordCount}
         />

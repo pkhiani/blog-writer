@@ -6,31 +6,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface BlogSettingsProps {
-  tone: string;
-  setTone: (tone: string) => void;
+  tones: string[];
+  setTones: (tones: string[]) => void;
   wordCount: string;
   setWordCount: (count: string) => void;
 }
 
-export function BlogSettings({ tone, setTone, wordCount, setWordCount }: BlogSettingsProps) {
+export function BlogSettings({ tones, setTones, wordCount, setWordCount }: BlogSettingsProps) {
+  const handleTonesChange = (values: string[]) => {
+    setTones(values);
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="tone">Writing Tone</Label>
-        <Select value={tone} onValueChange={setTone}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select tone" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="professional">Professional</SelectItem>
-            <SelectItem value="casual">Casual</SelectItem>
-            <SelectItem value="formal">Formal</SelectItem>
-            <SelectItem value="friendly">Friendly</SelectItem>
-            <SelectItem value="humorous">Humorous</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label htmlFor="tone">Writing Tones (Select multiple)</Label>
+        <ToggleGroup
+          type="multiple"
+          value={tones}
+          onValueChange={handleTonesChange}
+          className="flex flex-wrap gap-2"
+        >
+          <ToggleGroupItem value="professional" aria-label="Professional tone">
+            Professional
+          </ToggleGroupItem>
+          <ToggleGroupItem value="casual" aria-label="Casual tone">
+            Casual
+          </ToggleGroupItem>
+          <ToggleGroupItem value="formal" aria-label="Formal tone">
+            Formal
+          </ToggleGroupItem>
+          <ToggleGroupItem value="friendly" aria-label="Friendly tone">
+            Friendly
+          </ToggleGroupItem>
+          <ToggleGroupItem value="humorous" aria-label="Humorous tone">
+            Humorous
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       <div className="space-y-2">
