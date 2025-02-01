@@ -45,7 +45,7 @@ Ensure proper headings, paragraphs, and formatting for readability.
 At the end of the content, add a line "TAGS:" followed by up to 10 relevant 1-2 word tags for this blog post, separated by commas.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
@@ -65,20 +65,15 @@ At the end of the content, add a line "TAGS:" followed by up to 10 relevant 1-2 
     const imagePlaceholders = content.match(/\[IMAGE\]/g) || [];
     
     for (let i = 0; i < imagePlaceholders.length; i++) {
-      try {
-        const imageResponse = await openai.images.generate({
-          model: "dall-e-3",
-          prompt: `Generate a relevant image for a ${tones} blog post about: ${topic}`,
-          n: 1,
-          size: "1024x1024",
-        });
+      const imageResponse = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: `Generate a relevant image for a ${tones} blog post about: ${topic}`,
+        n: 1,
+        size: "1024x1024",
+      });
 
-        if (imageResponse.data[0]?.url) {
-          content = content.replace('[IMAGE]', `![Blog image ${i + 1}](${imageResponse.data[0].url})`);
-        }
-      } catch (error) {
-        console.error('Error generating image:', error);
-        content = content.replace('[IMAGE]', ''); // Remove the placeholder if image generation fails
+      if (imageResponse.data[0]?.url) {
+        content = content.replace('[IMAGE]', `![Blog image ${i + 1}](${imageResponse.data[0].url})`);
       }
     }
   }
