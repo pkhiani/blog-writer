@@ -44,18 +44,50 @@ export function BlogPreview({ content }: { content: string }) {
 
   const handleDownloadPDF = () => {
     const element = document.createElement('div');
+    const contentWithoutTags = content.replace(/TAGS:.+$/m, '');
+    
+    // Add CSS styles for better PDF formatting
     element.innerHTML = `
-      <div style="padding: 20px;">
-        ${content.replace(/TAGS:.+$/m, '')}
+      <div style="
+        padding: 40px;
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto;
+      ">
+        <style>
+          h1 { font-size: 28px; margin-bottom: 20px; color: #333; }
+          h2 { font-size: 24px; margin-top: 30px; margin-bottom: 15px; color: #444; }
+          h3 { font-size: 20px; margin-top: 25px; margin-bottom: 12px; color: #555; }
+          p { margin-bottom: 15px; font-size: 16px; color: #666; }
+          img { max-width: 100%; height: auto; margin: 20px 0; border-radius: 8px; }
+          blockquote { 
+            border-left: 4px solid #ddd;
+            padding-left: 15px;
+            margin: 20px 0;
+            font-style: italic;
+          }
+          ul, ol { margin: 15px 0; padding-left: 25px; }
+          li { margin-bottom: 8px; }
+        </style>
+        ${contentWithoutTags}
       </div>
     `;
     
     const opt = {
-      margin: 1,
+      margin: [0.5, 0.5],
       filename: 'blog-post.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        logging: true
+      },
+      jsPDF: { 
+        unit: 'in', 
+        format: 'letter', 
+        orientation: 'portrait'
+      }
     };
 
     html2pdf().set(opt).from(element).save().then(() => {
