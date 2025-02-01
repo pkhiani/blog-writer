@@ -5,7 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/components/ui/use-toast";
-import { Copy } from "lucide-react";
+import { Download } from "lucide-react";
+import html2pdf from "html2pdf.js";
 
 export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -41,6 +42,30 @@ export function BlogPreview({ content }: { content: string }) {
     });
   };
 
+  const handleDownloadPDF = () => {
+    const element = document.createElement('div');
+    element.innerHTML = `
+      <div style="padding: 20px;">
+        ${content.replace(/TAGS:.+$/m, '')}
+      </div>
+    `;
+    
+    const opt = {
+      margin: 1,
+      filename: 'blog-post.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      toast({
+        title: "PDF Downloaded",
+        description: "Your blog post has been downloaded as a PDF.",
+      });
+    });
+  };
+
   const tags = extractTags(editedContent);
   const contentWithoutTags = editedContent.replace(/TAGS:.+$/m, '');
 
@@ -48,7 +73,14 @@ export function BlogPreview({ content }: { content: string }) {
 
   return (
     <Card className="p-8 w-full max-w-4xl mx-auto mt-8">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end gap-2 mb-4">
+        <Button
+          variant="outline"
+          onClick={handleDownloadPDF}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Download PDF
+        </Button>
         <Button
           variant="outline"
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
@@ -73,11 +105,10 @@ export function BlogPreview({ content }: { content: string }) {
                   {tags.map((tag, index) => (
                     <Badge
                       key={index}
-                      className="cursor-pointer flex items-center gap-1 hover:bg-primary/90"
+                      className="cursor-pointer hover:bg-primary/90"
                       onClick={() => copyTag(tag)}
                     >
                       {tag}
-                      <Copy className="h-3 w-3 ml-1" />
                     </Badge>
                   ))}
                 </div>

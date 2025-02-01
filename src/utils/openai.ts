@@ -45,7 +45,7 @@ Ensure proper headings, paragraphs, and formatting for readability.
 At the end of the content, add a line "TAGS:" followed by up to 10 relevant 1-2 word tags for this blog post, separated by commas.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4o",  // Fixed model name
     messages: [
       {
         role: "system",
