@@ -44,7 +44,7 @@ Format the response in Markdown.
 Ensure proper headings, paragraphs, and formatting for readability.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: "o3-mini",
     messages: [
       {
         role: "system",
