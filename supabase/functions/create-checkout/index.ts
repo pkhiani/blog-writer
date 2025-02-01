@@ -25,6 +25,7 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
+      allow_promotion_codes: true, // Enable promo code input field
       success_url: `${req.headers.get('origin')}/`,
       cancel_url: `${req.headers.get('origin')}/`,
     })
