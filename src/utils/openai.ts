@@ -41,7 +41,8 @@ ${originalContent ? `Include this original content: "${originalContent}"` : ''}
 ${includeResearch ? 'Include well-researched information and cite sources.' : ''}
 ${includeImages ? 'Include [IMAGE] placeholders where relevant images should be placed.' : ''}
 Format the response in Markdown.
-Ensure proper headings, paragraphs, and formatting for readability.`;
+Ensure proper headings, paragraphs, and formatting for readability.
+At the end of the content, add a line "TAGS:" followed by up to 10 relevant 1-2 word tags for this blog post, separated by commas.`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",

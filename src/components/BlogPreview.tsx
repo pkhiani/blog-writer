@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/components/ui/use-toast";
+import { Copy } from "lucide-react";
 
 export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -22,6 +24,25 @@ export function BlogPreview({ content }: { content: string }) {
       description: "Your blog post has been updated successfully.",
     });
   };
+
+  const extractTags = (content: string) => {
+    const tagsMatch = content.match(/TAGS:(.+)$/m);
+    if (tagsMatch) {
+      return tagsMatch[1].split(',').map(tag => tag.trim());
+    }
+    return [];
+  };
+
+  const copyTag = (tag: string) => {
+    navigator.clipboard.writeText(tag);
+    toast({
+      title: "Tag Copied",
+      description: `"${tag}" has been copied to your clipboard.`,
+    });
+  };
+
+  const tags = extractTags(editedContent);
+  const contentWithoutTags = editedContent.replace(/TAGS:.+$/m, '');
 
   if (!content) return null;
 
@@ -43,7 +64,26 @@ export function BlogPreview({ content }: { content: string }) {
             className="min-h-[500px] font-mono text-sm"
           />
         ) : (
-          <ReactMarkdown>{editedContent}</ReactMarkdown>
+          <>
+            <ReactMarkdown>{contentWithoutTags}</ReactMarkdown>
+            {tags.length > 0 && (
+              <div className="mt-8 border-t pt-4">
+                <h3 className="text-lg font-semibold mb-3">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag, index) => (
+                    <Badge
+                      key={index}
+                      className="cursor-pointer flex items-center gap-1 hover:bg-primary/90"
+                      onClick={() => copyTag(tag)}
+                    >
+                      {tag}
+                      <Copy className="h-3 w-3 ml-1" />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </Card>
