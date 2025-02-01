@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Unlock } from "lucide-react";
 import { generateBlogContent, initializeOpenAI } from "@/utils/openai";
 import { BlogSettings } from "./blog/BlogSettings";
 import { BlogOptions } from "./blog/BlogOptions";
@@ -20,6 +20,7 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
   const [tones, setTones] = useState<string[]>(["professional"]);
   const [wordCount, setWordCount] = useState("500");
   const [includeImages, setIncludeImages] = useState(false);
+  const [premiumUnlocked, setPremiumUnlocked] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -35,6 +36,18 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
       }
     };
     initOpenAI();
+
+    // Check URL parameters for successful payment
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+      setPremiumUnlocked(true);
+      toast({
+        title: "Premium Features Unlocked",
+        description: "You can now use premium features for one generation.",
+      });
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
 
   const isPremiumFeatureSelected = () => {
@@ -92,7 +105,7 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
       return;
     }
 
-    if (isPremiumFeatureSelected()) {
+    if (isPremiumFeatureSelected() && !premiumUnlocked) {
       toast({
         title: "Premium Feature",
         description: "Please upgrade to access multiple tones, extended word count, research, and image features.",
@@ -112,6 +125,13 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
         includeImages
       );
       onBlogGenerated(generatedContent);
+      if (premiumUnlocked) {
+        setPremiumUnlocked(false);
+        toast({
+          title: "Premium Features Used",
+          description: "Your one-time premium generation has been used.",
+        });
+      }
       toast({
         title: "Blog Generated!",
         description: "Your SEO-optimized blog post has been created.",
@@ -165,7 +185,7 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
           setIncludeImages={setIncludeImages}
         />
 
-        {isPremiumFeatureSelected() && (
+        {isPremiumFeatureSelected() && !premiumUnlocked && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
             <p className="text-sm text-yellow-800">
               Premium features selected (multiple tones, extended word count, research, or images).
@@ -177,6 +197,15 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
             >
               Upgrade Now
             </Button>
+          </div>
+        )}
+
+        {premiumUnlocked && (
+          <div className="bg-green-50 border border-green-200 rounded-md p-4 flex items-center gap-2">
+            <Unlock className="h-4 w-4 text-green-600" />
+            <p className="text-sm text-green-800">
+              Premium features unlocked for one generation
+            </p>
           </div>
         )}
 
