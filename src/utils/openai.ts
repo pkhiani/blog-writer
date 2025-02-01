@@ -38,7 +38,7 @@ export const generateBlogContent = async (
 
   const prompt = `Write a ${wordCount}-word blog post about "${topic}" using these tones: ${tones}.
 ${originalContent ? `Include this original content: "${originalContent}"` : ''}
-${includeResearch ? 'Include well-researched information and cite sources.' : ''}
+${includeResearch ? 'Include well-researched information and cite sources, with clickable links.' : ''}
 ${includeImages ? 'Include [IMAGE] placeholders where relevant images should be placed.' : ''}
 Format the response in Markdown.
 Ensure proper headings, paragraphs, and formatting for readability.

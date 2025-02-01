@@ -77,7 +77,6 @@ export function BlogPreview({ content }: { content: string }) {
                       onClick={() => copyTag(tag)}
                     >
                       {tag}
-                      <Copy className="h-3 w-3 ml-1" />
                     </Badge>
                   ))}
                 </div>
