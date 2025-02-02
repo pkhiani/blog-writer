@@ -10,7 +10,7 @@ const Index = () => {
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold text-gray-900 font-merriweather">
-            AI Blog Writer
+            Write A Blog
           </h1>
           <p className="text-lg text-gray-600">
             Create SEO-optimized blog posts with the power of AI
