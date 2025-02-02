@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/components/ui/use-toast";
+import { Download } from "lucide-react";
+import { generatePDF } from "react-to-pdf";
 
 export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const { toast } = useToast();
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   // Update editedContent when new content is received
   if (content !== editedContent && !isEditing) {
@@ -22,6 +25,22 @@ export function BlogPreview({ content }: { content: string }) {
       title: "Changes Saved",
       description: "Your blog post has been updated successfully.",
     });
+  };
+
+  const handleDownloadPDF = () => {
+    if (pdfRef.current) {
+      generatePDF(() => pdfRef.current, {
+        filename: 'blog-post.pdf',
+        page: { 
+          margin: 20,
+          format: 'A4',
+        },
+      });
+      toast({
+        title: "PDF Generated",
+        description: "Your blog post has been downloaded as a PDF.",
+      });
+    }
   };
 
   const extractTags = (content: string) => {
@@ -47,7 +66,15 @@ export function BlogPreview({ content }: { content: string }) {
 
   return (
     <Card className="p-8 w-full max-w-4xl mx-auto mt-8">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end gap-2 mb-4">
+        <Button
+          variant="outline"
+          onClick={handleDownloadPDF}
+          className="gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Download PDF
+        </Button>
         <Button
           variant="outline"
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
@@ -55,7 +82,10 @@ export function BlogPreview({ content }: { content: string }) {
           {isEditing ? "Save Changes" : "Edit Content"}
         </Button>
       </div>
-      <div className="blog-content prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none">
+      <div 
+        ref={pdfRef}
+        className="blog-content prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none"
+      >
         {isEditing ? (
           <Textarea
             value={editedContent}
