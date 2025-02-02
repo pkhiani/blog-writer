@@ -54,7 +54,6 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
     return (
       tones.length > 1 ||
       parseInt(wordCount) > 1000 ||
-      includeResearch ||
       includeImages
     );
   };
@@ -188,7 +187,7 @@ export function BlogForm({ onBlogGenerated }: { onBlogGenerated: (content: strin
         {isPremiumFeatureSelected() && !premiumUnlocked && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
             <p className="text-sm text-yellow-800">
-              Premium features selected (multiple tones, extended word count, research, or images).
+              Premium features selected (multiple tones, extended word count, or images).
               Upgrade required to access these features.
             </p>
             <Button
