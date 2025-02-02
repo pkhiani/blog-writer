@@ -36,24 +36,25 @@ export const generateBlogContent = async (
     }
   }
 
-  const prompt = `Write a ${wordCount}-word blog post about "${topic}" using these tones: ${tones}.
+  // First, generate the blog content with image placeholders
+  const contentPrompt = `Write a ${wordCount}-word blog post about "${topic}" using these tones: ${tones}.
 ${originalContent ? `Include this original content: "${originalContent}"` : ''}
 ${includeResearch ? 'Include well-researched information and cite sources, with clickable links.' : ''}
-${includeImages ? 'Include [IMAGE] placeholders where relevant images should be placed.' : ''}
+${includeImages ? 'Add [GENERATE_IMAGE: brief image description] placeholders at appropriate points in the content where images would enhance the narrative.' : ''}
 Format the response in Markdown.
 Ensure proper headings, paragraphs, and formatting for readability.
 At the end of the content, add a line "TAGS:" followed by up to 10 relevant 1-2 word tags for this blog post, separated by commas.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
-        content: "You are a professional blog writer skilled in SEO optimization and creating engaging content."
+        content: "You are a professional blog writer skilled in SEO optimization and creating engaging content. When asked to include images, use the exact format [GENERATE_IMAGE: description] for image placeholders."
       },
       {
         role: "user",
-        content: prompt
+        content: contentPrompt
       }
     ],
     temperature: 0.7,
@@ -61,19 +62,35 @@ At the end of the content, add a line "TAGS:" followed by up to 10 relevant 1-2 
 
   let content = response.choices[0]?.message?.content || '';
 
-  if (includeImages && content.includes('[IMAGE]')) {
-    const imagePlaceholders = content.match(/\[IMAGE\]/g) || [];
+  // If images are requested, process all image placeholders
+  if (includeImages) {
+    const imagePlaceholderRegex = /\[GENERATE_IMAGE:\s*([^\]]+)\]/g;
+    const matches = [...content.matchAll(imagePlaceholderRegex)];
     
-    for (let i = 0; i < imagePlaceholders.length; i++) {
-      const imageResponse = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: `Generate a relevant image for a ${tones} blog post about: ${topic}`,
-        n: 1,
-        size: "1024x1024",
-      });
+    for (const match of matches) {
+      const [fullMatch, imageDescription] = match;
+      try {
+        const imageResponse = await openai.images.generate({
+          model: "dall-e-3",
+          prompt: `High quality, professional image for a blog post about ${topic}. Specifically: ${imageDescription}`,
+          n: 1,
+          size: "1024x1024",
+          quality: "hd",
+        });
 
-      if (imageResponse.data[0]?.url) {
-        content = content.replace('[IMAGE]', `![Blog image ${i + 1}](${imageResponse.data[0].url})`);
+        if (imageResponse.data[0]?.url) {
+          content = content.replace(
+            fullMatch, 
+            `![${imageDescription}](${imageResponse.data[0].url})`
+          );
+        }
+      } catch (error) {
+        console.error('Error generating image:', error);
+        // Replace failed image placeholder with an error message
+        content = content.replace(
+          fullMatch,
+          '*[Image generation failed]*'
+        );
       }
     }
   }
