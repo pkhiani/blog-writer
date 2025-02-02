@@ -62,6 +62,11 @@ At the end of the content, add a line "TAGS:" followed by up to 10 relevant 1-2 
 
   let content = response.choices[0]?.message?.content || '';
 
+  // If images are not requested, remove any image placeholders that might have been generated
+  if (!includeImages) {
+    content = content.replace(/\[GENERATE_IMAGE:[^\]]+\]\n?/g, '');
+  }
+
   // If images are requested, process all image placeholders
   if (includeImages) {
     const imagePlaceholderRegex = /\[GENERATE_IMAGE:\s*([^\]]+)\]/g;

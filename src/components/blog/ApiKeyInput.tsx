@@ -13,7 +13,7 @@ interface ApiKeyInputProps {
 export function ApiKeyInput({ apiKey, setApiKey, setIsApiKeySet }: ApiKeyInputProps) {
   const { toast } = useToast();
 
-  const handleApiKeySubmit = () => {
+  const handleApiKeySubmit = async () => {
     if (!apiKey.trim()) {
       toast({
         title: "API Key Required",
@@ -24,7 +24,7 @@ export function ApiKeyInput({ apiKey, setApiKey, setIsApiKeySet }: ApiKeyInputPr
     }
 
     try {
-      initializeOpenAI(apiKey);
+      await initializeOpenAI();
       setIsApiKeySet(true);
       toast({
         title: "API Key Set",

@@ -64,9 +64,9 @@ export function BlogPreview({ content }: { content: string }) {
           />
         ) : (
           <>
-            <ReactMarkdown className="markdown-content">
-              {contentWithoutTags}
-            </ReactMarkdown>
+            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg">
+              <ReactMarkdown>{contentWithoutTags}</ReactMarkdown>
+            </div>
             {tags.length > 0 && (
               <div className="mt-8 border-t pt-4">
                 <h3 className="text-lg font-semibold mb-3">Tags</h3>
