@@ -6,13 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/components/ui/use-toast";
 import { Download } from "lucide-react";
-import { generatePDF } from "react-to-pdf";
+import { usePDF } from "react-to-pdf";
 
 export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const { toast } = useToast();
-  const pdfRef = useRef<HTMLDivElement>(null);
+  const { toPDF, targetRef } = usePDF({
+    filename: 'blog-post.pdf',
+    page: { 
+      margin: 20,
+      format: 'A4',
+    },
+  });
 
   // Update editedContent when new content is received
   if (content !== editedContent && !isEditing) {
@@ -28,19 +34,11 @@ export function BlogPreview({ content }: { content: string }) {
   };
 
   const handleDownloadPDF = () => {
-    if (pdfRef.current) {
-      generatePDF(() => pdfRef.current, {
-        filename: 'blog-post.pdf',
-        page: { 
-          margin: 20,
-          format: 'A4',
-        },
-      });
-      toast({
-        title: "PDF Generated",
-        description: "Your blog post has been downloaded as a PDF.",
-      });
-    }
+    toPDF();
+    toast({
+      title: "PDF Generated",
+      description: "Your blog post has been downloaded as a PDF.",
+    });
   };
 
   const extractTags = (content: string) => {
@@ -83,7 +81,7 @@ export function BlogPreview({ content }: { content: string }) {
         </Button>
       </div>
       <div 
-        ref={pdfRef}
+        ref={targetRef}
         className="blog-content prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none"
       >
         {isEditing ? (
