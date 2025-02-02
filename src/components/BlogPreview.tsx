@@ -5,7 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/components/ui/use-toast";
-import { Copy } from "lucide-react";
 
 export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +41,7 @@ export function BlogPreview({ content }: { content: string }) {
   };
 
   const tags = extractTags(editedContent);
-  const contentWithoutTags = editedContent.replace(/TAGS:.+$/m, '');
+  const contentWithoutTags = editedContent.replace(/TAGS:.+$/m, '').trim();
 
   if (!content) return null;
 
@@ -56,7 +55,7 @@ export function BlogPreview({ content }: { content: string }) {
           {isEditing ? "Save Changes" : "Edit Content"}
         </Button>
       </div>
-      <div className="blog-content">
+      <div className="blog-content prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none">
         {isEditing ? (
           <Textarea
             value={editedContent}
@@ -65,7 +64,9 @@ export function BlogPreview({ content }: { content: string }) {
           />
         ) : (
           <>
-            <ReactMarkdown>{contentWithoutTags}</ReactMarkdown>
+            <ReactMarkdown className="markdown-content">
+              {contentWithoutTags}
+            </ReactMarkdown>
             {tags.length > 0 && (
               <div className="mt-8 border-t pt-4">
                 <h3 className="text-lg font-semibold mb-3">Tags</h3>
@@ -73,7 +74,7 @@ export function BlogPreview({ content }: { content: string }) {
                   {tags.map((tag, index) => (
                     <Badge
                       key={index}
-                      className="cursor-pointer flex items-center gap-1 hover:bg-primary/90"
+                      className="cursor-pointer hover:bg-primary/90"
                       onClick={() => copyTag(tag)}
                     >
                       {tag}
