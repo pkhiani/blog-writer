@@ -75,7 +75,7 @@ At the end of the content, add a line "TAGS:" followed by up to 10 relevant 1-2 
           prompt: `High quality, professional image for a blog post about ${topic}. Specifically: ${imageDescription}`,
           n: 1,
           size: "1024x1024",
-          quality: "hd",
+          quality: "standard",
         });
 
         if (imageResponse.data[0]?.url) {
