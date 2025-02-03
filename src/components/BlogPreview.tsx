@@ -5,31 +5,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/components/ui/use-toast";
-import { Download } from "lucide-react";
-import { usePDF } from "react-to-pdf";
 
 export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const { toast } = useToast();
-  const { toPDF, targetRef } = usePDF({
-    filename: 'blog-post.pdf',
-    page: { 
-      margin: 20,
-      format: 'A4',
-    },
-    method: 'save',
-    resolution: 2,
-    canvas: {
-      useCORS: true,
-    },
-    overrides: {
-      pdf: {
-        compress: false,
-      },
-    },
-  });
 
+  // Update editedContent when new content is received
   if (content !== editedContent && !isEditing) {
     setEditedContent(content);
   }
@@ -39,14 +21,6 @@ export function BlogPreview({ content }: { content: string }) {
     toast({
       title: "Changes Saved",
       description: "Your blog post has been updated successfully.",
-    });
-  };
-
-  const handleDownloadPDF = () => {
-    toPDF();
-    toast({
-      title: "PDF Generated",
-      description: "Your blog post has been downloaded as a PDF.",
     });
   };
 
@@ -73,15 +47,7 @@ export function BlogPreview({ content }: { content: string }) {
 
   return (
     <Card className="p-8 w-full max-w-4xl mx-auto mt-8">
-      <div className="flex justify-end gap-2 mb-4">
-        <Button
-          variant="outline"
-          onClick={handleDownloadPDF}
-          className="gap-2"
-        >
-          <Download className="h-4 w-4" />
-          Download PDF
-        </Button>
+      <div className="flex justify-end mb-4">
         <Button
           variant="outline"
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
@@ -89,10 +55,7 @@ export function BlogPreview({ content }: { content: string }) {
           {isEditing ? "Save Changes" : "Edit Content"}
         </Button>
       </div>
-      <div 
-        ref={targetRef}
-        className="blog-content prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none"
-      >
+      <div className="blog-content prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none">
         {isEditing ? (
           <Textarea
             value={editedContent}
@@ -101,19 +64,8 @@ export function BlogPreview({ content }: { content: string }) {
           />
         ) : (
           <>
-            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800">
-              <ReactMarkdown
-                components={{
-                  a: ({ node, ...props }) => (
-                    <a {...props} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }} />
-                  ),
-                  img: ({ node, ...props }) => (
-                    <img {...props} crossOrigin="anonymous" loading="eager" />
-                  ),
-                }}
-              >
-                {contentWithoutTags}
-              </ReactMarkdown>
+            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg">
+              <ReactMarkdown>{contentWithoutTags}</ReactMarkdown>
             </div>
             {tags.length > 0 && (
               <div className="mt-8 border-t pt-4">
