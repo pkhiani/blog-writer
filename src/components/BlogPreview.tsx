@@ -12,12 +12,26 @@ export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const { toast } = useToast();
-  const { toPDF, targetRef } = usePDF({
+  const targetRef = useRef<HTMLDivElement>(null);
+
+  const { toPDF } = usePDF({
+    targetRef,
     filename: 'blog-post.pdf',
-    page: { 
-      margin: 20,
-      format: 'A4',
-    },
+    options: {
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: true,
+        allowTaint: true,
+        imageTimeout: 15000
+      },
+      jsPDF: { 
+        unit: 'pt',
+        format: 'a4',
+        orientation: 'portrait'
+      }
+    }
   });
 
   // Update editedContent when new content is received
@@ -33,7 +47,21 @@ export function BlogPreview({ content }: { content: string }) {
     });
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
+    // Wait for images to load before generating PDF
+    if (targetRef.current) {
+      const images = targetRef.current.getElementsByTagName('img');
+      await Promise.all(
+        Array.from(images).map(
+          (img) => 
+            new Promise((resolve) => {
+              if (img.complete) resolve(null);
+              else img.onload = () => resolve(null);
+            })
+        )
+      );
+    }
+    
     toPDF();
     toast({
       title: "PDF Generated",
@@ -93,7 +121,18 @@ export function BlogPreview({ content }: { content: string }) {
         ) : (
           <>
             <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg">
-              <ReactMarkdown>{contentWithoutTags}</ReactMarkdown>
+              <ReactMarkdown components={{
+                img: ({ node, ...props }) => (
+                  <img
+                    {...props}
+                    loading="eager"
+                    crossOrigin="anonymous"
+                    style={{ maxWidth: '100%', height: 'auto' }}
+                  />
+                )
+              }}>
+                {contentWithoutTags}
+              </ReactMarkdown>
             </div>
             {tags.length > 0 && (
               <div className="mt-8 border-t pt-4">
