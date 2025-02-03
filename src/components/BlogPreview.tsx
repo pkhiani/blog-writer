@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,29 +12,24 @@ export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const { toast } = useToast();
-  const targetRef = useRef<HTMLDivElement>(null);
-
-  const { toPDF } = usePDF({
-    targetRef,
+  const { toPDF, targetRef } = usePDF({
     filename: 'blog-post.pdf',
-    options: {
-      image: { type: 'jpeg', quality: 1 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: true,
-        allowTaint: true,
-        imageTimeout: 15000
+    page: { 
+      margin: 20,
+      format: 'A4',
+    },
+    method: 'save',
+    resolution: 2,
+    canvas: {
+      useCORS: true,
+    },
+    overrides: {
+      pdf: {
+        compress: false,
       },
-      jsPDF: { 
-        unit: 'pt',
-        format: 'a4',
-        orientation: 'portrait'
-      }
-    }
+    },
   });
 
-  // Update editedContent when new content is received
   if (content !== editedContent && !isEditing) {
     setEditedContent(content);
   }
@@ -47,21 +42,7 @@ export function BlogPreview({ content }: { content: string }) {
     });
   };
 
-  const handleDownloadPDF = async () => {
-    // Wait for images to load before generating PDF
-    if (targetRef.current) {
-      const images = targetRef.current.getElementsByTagName('img');
-      await Promise.all(
-        Array.from(images).map(
-          (img) => 
-            new Promise((resolve) => {
-              if (img.complete) resolve(null);
-              else img.onload = () => resolve(null);
-            })
-        )
-      );
-    }
-    
+  const handleDownloadPDF = () => {
     toPDF();
     toast({
       title: "PDF Generated",
@@ -120,17 +101,17 @@ export function BlogPreview({ content }: { content: string }) {
           />
         ) : (
           <>
-            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg">
-              <ReactMarkdown components={{
-                img: ({ node, ...props }) => (
-                  <img
-                    {...props}
-                    loading="eager"
-                    crossOrigin="anonymous"
-                    style={{ maxWidth: '100%', height: 'auto' }}
-                  />
-                )
-              }}>
+            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800">
+              <ReactMarkdown
+                components={{
+                  a: ({ node, ...props }) => (
+                    <a {...props} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }} />
+                  ),
+                  img: ({ node, ...props }) => (
+                    <img {...props} crossOrigin="anonymous" loading="eager" />
+                  ),
+                }}
+              >
                 {contentWithoutTags}
               </ReactMarkdown>
             </div>
