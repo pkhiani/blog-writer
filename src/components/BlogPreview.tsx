@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,9 +21,14 @@ export function BlogPreview({ content }: { content: string }) {
     method: 'save',
     resolution: 2,
     canvas: {
-      // Ensure high-quality image rendering
-      scale: 2,
       useCORS: true,
+    },
+    overrides: {
+      // Ensure links are clickable in PDF
+      pdf: {
+        compress: false,
+        pdfVersion: '1.7',
+      },
     },
   });
 
