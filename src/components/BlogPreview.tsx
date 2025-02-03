@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,18 +18,9 @@ export function BlogPreview({ content }: { content: string }) {
       margin: 20,
       format: 'A4',
     },
-    method: 'save',
-    resolution: 2,
-    canvas: {
-      useCORS: true,
-    },
-    overrides: {
-      pdf: {
-        compress: false,
-      },
-    },
   });
 
+  // Update editedContent when new content is received
   if (content !== editedContent && !isEditing) {
     setEditedContent(content);
   }
@@ -101,19 +92,8 @@ export function BlogPreview({ content }: { content: string }) {
           />
         ) : (
           <>
-            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800">
-              <ReactMarkdown
-                components={{
-                  a: ({ node, ...props }) => (
-                    <a {...props} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }} />
-                  ),
-                  img: ({ node, ...props }) => (
-                    <img {...props} crossOrigin="anonymous" loading="eager" />
-                  ),
-                }}
-              >
-                {contentWithoutTags}
-              </ReactMarkdown>
+            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg">
+              <ReactMarkdown>{contentWithoutTags}</ReactMarkdown>
             </div>
             {tags.length > 0 && (
               <div className="mt-8 border-t pt-4">
