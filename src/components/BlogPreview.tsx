@@ -18,6 +18,13 @@ export function BlogPreview({ content }: { content: string }) {
       margin: 20,
       format: 'A4',
     },
+    method: 'save',
+    resolution: 2,
+    canvas: {
+      // Ensure high-quality image rendering
+      scale: 2,
+      useCORS: true,
+    },
   });
 
   // Update editedContent when new content is received
@@ -92,8 +99,19 @@ export function BlogPreview({ content }: { content: string }) {
           />
         ) : (
           <>
-            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg">
-              <ReactMarkdown>{contentWithoutTags}</ReactMarkdown>
+            <div className="prose-headings:font-bold prose-headings:mb-4 prose-p:mb-4 prose-img:my-8 prose-img:rounded-lg prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800">
+              <ReactMarkdown
+                components={{
+                  a: ({ node, ...props }) => (
+                    <a {...props} target="_blank" rel="noopener noreferrer" />
+                  ),
+                  img: ({ node, ...props }) => (
+                    <img {...props} crossOrigin="anonymous" loading="eager" />
+                  ),
+                }}
+              >
+                {contentWithoutTags}
+              </ReactMarkdown>
             </div>
             {tags.length > 0 && (
               <div className="mt-8 border-t pt-4">
