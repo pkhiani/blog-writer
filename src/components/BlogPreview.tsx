@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/components/ui/use-toast";
-import { PrinterIcon } from "lucide-react";
 
 export function BlogPreview({ content }: { content: string }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -24,42 +22,6 @@ export function BlogPreview({ content }: { content: string }) {
       title: "Changes Saved",
       description: "Your blog post has been updated successfully.",
     });
-  };
-
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      const contentWithoutTags = editedContent.replace(/TAGS:.+$/m, '').trim();
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Blog Post</title>
-            <style>
-              body {
-                font-family: system-ui, -apple-system, sans-serif;
-                line-height: 1.6;
-                max-width: 800px;
-                margin: 40px auto;
-                padding: 0 20px;
-              }
-              img {
-                max-width: 100%;
-                height: auto;
-                border-radius: 8px;
-                margin: 20px 0;
-              }
-              h1, h2, h3 { margin-top: 2em; }
-              p { margin-bottom: 1em; }
-            </style>
-          </head>
-          <body>
-            ${contentWithoutTags}
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
   };
 
   const extractTags = (content: string) => {
@@ -85,14 +47,7 @@ export function BlogPreview({ content }: { content: string }) {
 
   return (
     <Card className="p-8 w-full max-w-4xl mx-auto mt-8">
-      <div className="flex justify-end gap-2 mb-4">
-        <Button
-          variant="outline"
-          onClick={handlePrint}
-        >
-          <PrinterIcon className="mr-2 h-4 w-4" />
-          Print
-        </Button>
+      <div className="flex justify-end mb-4">
         <Button
           variant="outline"
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
