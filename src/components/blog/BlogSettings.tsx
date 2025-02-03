@@ -55,11 +55,11 @@ export function BlogSettings({ tones, setTones, wordCount, setWordCount }: BlogS
             <SelectValue placeholder="Select word count" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="300">300 words</SelectItem>
+            <SelectItem value="250">250 words</SelectItem>
             <SelectItem value="500">500 words</SelectItem>
-            <SelectItem value="750">750 words</SelectItem>
             <SelectItem value="1000">1000 words</SelectItem>
-            <SelectItem value="1500">1500 words</SelectItem>
+            <SelectItem value="2500">2500 words</SelectItem>
+            <SelectItem value="5000">5000 words</SelectItem>
           </SelectContent>
         </Select>
       </div>
