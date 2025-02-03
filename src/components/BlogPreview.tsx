@@ -24,15 +24,12 @@ export function BlogPreview({ content }: { content: string }) {
       useCORS: true,
     },
     overrides: {
-      // Ensure links are clickable in PDF
       pdf: {
         compress: false,
-        pdfVersion: '1.7',
       },
     },
   });
 
-  // Update editedContent when new content is received
   if (content !== editedContent && !isEditing) {
     setEditedContent(content);
   }
@@ -108,7 +105,7 @@ export function BlogPreview({ content }: { content: string }) {
               <ReactMarkdown
                 components={{
                   a: ({ node, ...props }) => (
-                    <a {...props} target="_blank" rel="noopener noreferrer" />
+                    <a {...props} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }} />
                   ),
                   img: ({ node, ...props }) => (
                     <img {...props} crossOrigin="anonymous" loading="eager" />
